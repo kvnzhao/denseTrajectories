@@ -13,7 +13,7 @@ int show_track = 1; // set show_track = 1, if you want to visualize the trajecto
 int main(int argc, char** argv)
 {
 	VideoCapture capture;
-	char* video = argv[1];
+	char* video = "/home/kun/Data/testvideo001.avi";
 	int flag = arg_parse(argc, argv);
 	capture.open(video);
 
