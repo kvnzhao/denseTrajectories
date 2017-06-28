@@ -71,7 +71,7 @@ void BuildDescMat(const Mat& xComp, const Mat& yComp, float* desc, const DescInf
 	}
 }
 
-// get a descriptor from the integral histogram
+// get a descriptor from the integral histogram　从积分直方图得到描述子
 void GetDesc(const DescMat* descMat, RectInfo& rect, DescInfo descInfo, std::vector<float>& desc, const int index)
 {
 	int dim = descInfo.dim;
@@ -144,7 +144,7 @@ void MbhComp(const Mat& flow, float* descX, float* descY, DescInfo& descInfo)
 	BuildDescMat(flowYdX, flowYdY, descY, descInfo);
 }
 
-// check whether a trajectory is valid or not
+// check whether a trajectory is valid or not　检查轨迹是否是有效轨迹
 bool IsValid(std::vector<Point2f>& track, float& mean_x, float& mean_y, float& var_x, float& var_y, float& length)
 {
 	int size = track.size();
@@ -196,7 +196,8 @@ bool IsValid(std::vector<Point2f>& track, float& mean_x, float& mean_y, float& v
 	return true;
 }
 
-// detect new feature points in an image without overlapping to previous points
+// detect new feature points in an image without overlapping to previous points 在图像中检测特征点，不重叠之前的特征点
+// 去掉平滑区域中的点，根据梯度特征值
 void DenseSample(const Mat& grey, std::vector<Point2f>& points, const double quality, const int min_distance)
 {
 	int width = grey.cols/min_distance;
@@ -247,14 +248,14 @@ void InitPry(const Mat& frame, std::vector<float>& scales, std::vector<Size>& si
 	float min_size = std::min<int>(rows, cols);
 
 	int nlayers = 0;
-	while(min_size >= patch_size) {
+	while(min_size >= patch_size) {	//patch_size = 32
 		min_size /= scale_stride;
 		nlayers++;
 	}
 
 	if(nlayers == 0) nlayers = 1; // at least 1 scale 
 
-	scale_num = std::min<int>(scale_num, nlayers);
+	scale_num = std::min<int>(scale_num, nlayers);	//scale_num = 8
 
 	scales.resize(scale_num);
 	sizes.resize(scale_num);
@@ -263,7 +264,7 @@ void InitPry(const Mat& frame, std::vector<float>& scales, std::vector<Size>& si
 	sizes[0] = Size(cols, rows);
 
 	for(int i = 1; i < scale_num; i++) {
-		scales[i] = scales[i-1] * scale_stride;
+		scales[i] = scales[i-1] * scale_stride;  //scale_stride = sqrt(2)
 		sizes[i] = Size(cvRound(cols/scales[i]), cvRound(rows/scales[i]));
 	}
 }
@@ -293,6 +294,24 @@ void DrawTrack(const std::vector<Point2f>& point, const int index, const float s
 }
 
 void PrintDesc(std::vector<float>& desc, DescInfo& descInfo, TrackInfo& trackInfo)
+{
+	int tStride = cvFloor(trackInfo.length/descInfo.ntCells);
+	float norm = 1./float(tStride);
+	int dim = descInfo.dim;
+	int pos = 0;
+	for(int i = 0; i < descInfo.ntCells; i++) {
+		std::vector<float> vec(dim);
+		for(int t = 0; t < tStride; t++)
+			for(int j = 0; j < dim; j++)
+				vec[j] += desc[pos++];
+		for(int j = 0; j < dim; j++)
+			printf("%.7f\t", vec[j]*norm);
+	}
+}
+
+//save feature to file
+
+void SaveDesc(std::vector<float>& desc, DescInfo& descInfo, TrackInfo& trackInfo)
 {
 	int tStride = cvFloor(trackInfo.length/descInfo.ntCells);
 	float norm = 1./float(tStride);
