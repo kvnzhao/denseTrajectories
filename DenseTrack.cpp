@@ -16,6 +16,9 @@ int main(int argc, char** argv)
 {
 	VideoCapture capture;
 	char* video = "/home/kun/Data/testvideo001.avi";
+    char* file_path = "/home/kun/Data/UCSD_feature/UCSDped2/Train";		//训练视频文件路径
+	int file_number = 1;	//处理训练视频的第几个文件
+
 	int flag = arg_parse(argc, argv);
 	capture.open(video);
 
@@ -213,6 +216,12 @@ int main(int argc, char** argv)
 						printf("\n");
 
                         //save feature describer
+						if(iScale == 0){
+							//SaveDesc(iTrack->hog, hogInfo, trackInfo);
+							SaveDesc(iTrack->hof, hofInfo, trackInfo);
+							//SaveDesc(iTrack->mbhX, mbhInfo, trackInfo);
+							//SaveDesc(iTrack->mbhY, mbhInfo, trackInfo);
+						}
 
 
 					}

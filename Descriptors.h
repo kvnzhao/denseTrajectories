@@ -2,7 +2,9 @@
 #define DESCRIPTORS_H_
 
 #include "DenseTrack.h"
+#include <fstream>
 using namespace cv;
+using namespace std;
 
 // get the rectangle for computing the descriptor
 void GetRect(const Point2f& point, RectInfo& rect, const int width, const int height, const DescInfo& descInfo)
@@ -309,10 +311,14 @@ void PrintDesc(std::vector<float>& desc, DescInfo& descInfo, TrackInfo& trackInf
 	}
 }
 
-//save feature to file
+//save feature to file 保存特征到文件中
 
 void SaveDesc(std::vector<float>& desc, DescInfo& descInfo, TrackInfo& trackInfo)
 {
+	ofstream file("/home/kun/Data/a.txt",ios::out|ios::app);
+	if(!file.is_open()){
+		cout << "file open fail......";
+	}
 	int tStride = cvFloor(trackInfo.length/descInfo.ntCells);
 	float norm = 1./float(tStride);
 	int dim = descInfo.dim;
@@ -323,8 +329,10 @@ void SaveDesc(std::vector<float>& desc, DescInfo& descInfo, TrackInfo& trackInfo
 			for(int j = 0; j < dim; j++)
 				vec[j] += desc[pos++];
 		for(int j = 0; j < dim; j++)
-			printf("%.7f\t", vec[j]*norm);
+			file << vec[j]*norm << " ";//printf("%.7f\t", vec[j]*norm);
 	}
+	file << "\n";
+	file.close();
 }
 
 #endif /*DESCRIPTORS_H_*/
