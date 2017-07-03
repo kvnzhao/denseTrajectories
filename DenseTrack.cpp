@@ -1,11 +1,9 @@
 #include <opencv2/opencv.hpp>
-#include <fstream>
 #include "DenseTrack.h"
 #include "Initialize.h"
 #include "Descriptors.h"
 #include "OpticalFlow.h"
 
-#include <time.h>
 
 using namespace cv;
 using namespace std;
@@ -15,9 +13,12 @@ int show_track = 1; // set show_track = 1, if you want to visualize the trajecto
 int main(int argc, char** argv)
 {
 	VideoCapture capture;
-	char* video = "/home/kun/Data/testvideo001.avi";
-    char* file_path = "/home/kun/Data/UCSD_feature/UCSDped2/Train";		//训练视频文件路径
+    char* file_path = "/home/kun/Data/UCSD/UCSDped2/Test/Test";		//训练视频文件路径
 	int file_number = 1;	//处理训练视频的第几个文件
+
+	char* save_path = "/home/kun/Data/UCSD_feature/UCSDped2/Test/Test";	//保存特征路径
+	char video[100];
+	sprintf(video,"%s%03d.avi",file_path,file_number);
 
 	int flag = arg_parse(argc, argv);
 	capture.open(video);
@@ -215,10 +216,18 @@ int main(int argc, char** argv)
 						PrintDesc(iTrack->mbhY, mbhInfo, trackInfo);
 						printf("\n");
 
-                        //save feature describer
+                        //save feature describer 保存底层特征
 						if(iScale == 0){
-							//SaveDesc(iTrack->hog, hogInfo, trackInfo);
-							SaveDesc(iTrack->hof, hofInfo, trackInfo);
+							char file[100];
+							sprintf(file,"%s%03d",save_path,file_number);
+							//保存轨迹(第一个数据为当前帧数)
+							SaveTrajectory(trajectory, trackInfo, file, "trajectory.txt", frame_num);
+
+							//保存特征
+							SaveDesc(iTrack->hof, hofInfo, trackInfo,file,"hof.txt");
+							SaveDesc(iTrack->hog, hogInfo, trackInfo,file, "hog.txt");
+							SaveDesc(iTrack->mbhX, mbhInfo, trackInfo, file, "mbhX.txt");
+							SaveDesc(iTrack->mbhY, mbhInfo, trackInfo, file, "mbhY.txt");
 							//SaveDesc(iTrack->mbhX, mbhInfo, trackInfo);
 							//SaveDesc(iTrack->mbhY, mbhInfo, trackInfo);
 						}

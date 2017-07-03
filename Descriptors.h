@@ -312,13 +312,50 @@ void PrintDesc(std::vector<float>& desc, DescInfo& descInfo, TrackInfo& trackInf
 }
 
 //save feature to file 保存特征到文件中
-
-void SaveDesc(std::vector<float>& desc, DescInfo& descInfo, TrackInfo& trackInfo)
+/**
+ *
+ * @param trajectory 轨迹点
+ * @param trackInfo 轨迹描述
+ * @param file_path 保存轨迹文件路径
+ * @param file_name 保存轨迹文件名称
+ * @param frame_number 当前帧数
+ */
+void SaveTrajectory(std::vector<Point2f>& trajectory, TrackInfo& trackInfo, char* file_path, char* file_name, int frame_number)
 {
-	ofstream file("/home/kun/Data/a.txt",ios::out|ios::app);
+    char file_feature[100];
+    sprintf(file_feature,"%s/%s",file_path,file_name);
+    ofstream file(file_feature,ios::out|ios::app);
+    if(!file.is_open()){
+        cout << "file open fail......";
+    }
+    // output the trajectory　输出轨迹
+    file << frame_number << " ";    //特征第一个保存帧数
+    for (int i = 0; i < trackInfo.length; ++i){
+        file << trajectory[i].x << " " << trajectory[i].y << " ";
+    }
+    file << "\n";
+    file.close();
+
+}
+
+/**
+ *
+ * @param desc 特征值
+ * @param descInfo 特征描述
+ * @param trackInfo 轨迹描述
+ * @param file_path 保存特征文件路径
+ * @param file_name 保存特征文件名称
+ * @param frame_number 当前帧数
+ */
+void SaveDesc(std::vector<float>& desc, DescInfo& descInfo, TrackInfo& trackInfo, char* file_path, char* file_name)
+{
+    char file_feature[100];
+    sprintf(file_feature,"%s/%s",file_path,file_name);
+	ofstream file(file_feature,ios::out|ios::app);
 	if(!file.is_open()){
 		cout << "file open fail......";
 	}
+    //file << frame_number << " ";    //特征第一个保存帧数
 	int tStride = cvFloor(trackInfo.length/descInfo.ntCells);
 	float norm = 1./float(tStride);
 	int dim = descInfo.dim;
